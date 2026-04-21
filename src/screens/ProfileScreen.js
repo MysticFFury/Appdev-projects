@@ -50,7 +50,6 @@ const ProfileScreen = () => {
         ProfileScreen
       </Text>
 
-     
       <TouchableOpacity
         onPress={handleLogout}
         style={{
