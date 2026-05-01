@@ -12,7 +12,7 @@ export default function CustomTextInput({
   label,
   placeholder,
   onChangeText,
-  textStyle,
+  textStyle, 
   TextInputStyle
 }: CustomTextInputProps) {
   return (

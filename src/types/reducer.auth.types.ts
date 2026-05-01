@@ -9,3 +9,4 @@ export interface AuthAction {
   payload?: any;
   error?: string;
 }
+ 

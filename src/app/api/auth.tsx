@@ -10,7 +10,7 @@ function getDevServerHost(): string | null {
   return match?.[1] ?? null;
 }
 
-function isProbablyAndroidEmulator(): boolean {
+function isProbablyAndroidEmulator(): boolean { 
   if (Platform.OS !== 'android') return false;
   const pc = NativeModules?.PlatformConstants ?? {};
   const fingerprint = String(pc.Fingerprint ?? pc.fingerprint ?? '').toLowerCase();

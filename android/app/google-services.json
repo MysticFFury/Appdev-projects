@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "929205060312",
+    "project_id": "greargridapp",
+    "storage_bucket": "greargridapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929205060312:android:9d0e18283ad52777ee8dad",
+        "android_client_info": {
+          "package_name": "com.geargridapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929205060312-fpp1cl2o3lj9podjihhdnvoosdmp507m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.geargridapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "929205060312-o298f0udh3pp0870jttuf3d38bk5m712.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd6_RtYm21648WLZ3PpXYbKUZ7H0sjLig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929205060312-o298f0udh3pp0870jttuf3d38bk5m712.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -11,7 +11,7 @@ import {
 interface CustomButtonProps {
   children: React.ReactNode;
   onPress?: () => void;
-  disabled?: boolean;
+  disabled?: boolean; 
   loading?: boolean;
   variant?: 'primary' | 'outline';
   style?: ViewStyle;

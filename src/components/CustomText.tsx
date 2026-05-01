@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 11,
-    color: '#8F95A0',
+    color: '#8F95A0', 
     fontWeight: '700',
     letterSpacing: 1,
   },

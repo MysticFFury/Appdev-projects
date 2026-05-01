@@ -1,0 +1,16 @@
+{
+  "java.import.exclusions": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/build/**"
+  ],
+  "java.errors.incompleteClasspath.severity": "ignore",
+  "files.watcherExclude": {
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/node_modules/**": true
+  },
+  "explorer.decorations.badges": false,
+  "explorer.decorations.colors": false
+}

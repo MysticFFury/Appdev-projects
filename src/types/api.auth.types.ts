@@ -21,4 +21,4 @@ export interface ApiResponse<T = any> {
 
 export interface FetchOptions extends RequestInit {
   timeoutMs?: number;
-}
+} 

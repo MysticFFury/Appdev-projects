@@ -10,7 +10,7 @@ const INITIAL_STATE: AuthState = {
   user: null,
   isLoading: false,
   error: null,
-};
+}; 
 
 export default function authReducer(state = INITIAL_STATE, action: AuthAction): AuthState {
   switch (action.type) {
