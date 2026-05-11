@@ -8,6 +8,7 @@ import { loginSuccess } from '../app/action';
 // Import the two Navigators
 import AuthNav from './auth';
 import MainNav from './MainNav';
+import { colors } from '../theme';
 
 export default function AppNav() {
   const [isHydrating, setIsHydrating] = useState(true);
@@ -49,10 +50,10 @@ export default function AppNav() {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#fff',
+          backgroundColor: colors.bgBase,
         }}
       >
-        <ActivityIndicator size="large" color="#c27100" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }

@@ -7,12 +7,13 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { IMG } from '../../utils';
 import { NavigationProps } from '../../types/screen.auth.types';
+import ScreenBackground from '../../components/ScreenBackground';
+import { colors, radii, typography } from '../../theme';
 
 export default function Register({ navigation }: NavigationProps) {
   const [name, setName] = useState('');
@@ -25,72 +26,71 @@ export default function Register({ navigation }: NavigationProps) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-
-          {/* Logo Placeholder */}
-
-          <View style={styles.headerContainer}>
-            <View style={styles.accentLine} />
-            <Text style={styles.headerTitle}>Create Account</Text>
-            <Text style={styles.subHeader}>SYSTEM.REGISTER // NEW_USER</Text>
-          </View>
-
-          <View style={styles.card}>
-            <View style={styles.field}>
-              <Text style={styles.label}>FULL NAME</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="John Doe"
-                placeholderTextColor="#555C6A"
-                value={name}
-                onChangeText={setName}
-              />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <ScreenBackground>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+            <View style={styles.headerContainer}>
+              <View style={styles.accentBar} />
+              <Text style={styles.brandMark}>GearGrid</Text>
+              <Text style={styles.headerTitle}>Create account</Text>
+              <Text style={styles.subHeader}>Join the grid in a few steps</Text>
             </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>EMAIL ADDRESS</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="user@geargrid.com"
-                placeholderTextColor="#555C6A"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
+            <View style={styles.card}>
+              <View style={styles.field}>
+                <Text style={styles.label}>FULL NAME</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="John Doe"
+                  placeholderTextColor={colors.placeholder}
+                  value={name}
+                  onChangeText={setName}
+                />
+              </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>PASSWORD</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="••••••••"
-                placeholderTextColor="#555C6A"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-            </View>
+              <View style={styles.field}>
+                <Text style={styles.label}>EMAIL ADDRESS</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="user@geargrid.com"
+                  placeholderTextColor={colors.placeholder}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
 
-            <TouchableOpacity style={styles.primaryButton} onPress={handleRegister}>
-              <Text style={styles.primaryButtonText}>INITIALIZE ACCOUNT</Text>
-            </TouchableOpacity>
+              <View style={styles.field}>
+                <Text style={styles.label}>PASSWORD</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.placeholder}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+              </View>
 
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Already on the grid? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.linkText}>Authenticate</Text>
+              <TouchableOpacity style={styles.primaryButton} onPress={handleRegister} activeOpacity={0.9}>
+                <Text style={styles.primaryButtonText}>Create account</Text>
               </TouchableOpacity>
-            </View>
-          </View>
 
-        </ScrollView>
-      </KeyboardAvoidingView>
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>Already have an account? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={styles.linkText}>Sign in</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </ScreenBackground>
     </SafeAreaView>
   );
 }
@@ -98,102 +98,97 @@ export default function Register({ navigation }: NavigationProps) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0A0C10',
+    backgroundColor: colors.bgBase,
   },
   scrollContainer: {
     flexGrow: 1,
     padding: 24,
     justifyContent: 'center',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  logo: {
-    width: 100,
-    height: 100,
-    borderRadius: 20,
-    backgroundColor: '#161922', // Fallback color if image fails
-    borderWidth: 1,
-    borderColor: '#232836',
+    paddingVertical: 32,
   },
   headerContainer: {
-    marginBottom: 32,
+    marginBottom: 28,
   },
-  accentLine: {
-    width: 40,
+  accentBar: {
+    width: 48,
     height: 4,
-    backgroundColor: '#FF6B00',
-    marginBottom: 16,
+    backgroundColor: colors.primary,
+    marginBottom: 14,
     borderRadius: 2,
   },
-  headerTitle: {
-    fontSize: 36,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 1,
+  brandMark: {
+    ...typography.brandTitle,
     marginBottom: 8,
+  },
+  headerTitle: {
+    ...typography.screenTitle,
+    marginBottom: 6,
   },
   subHeader: {
     fontSize: 14,
-    color: '#8F95A0',
-    letterSpacing: 2,
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+    color: colors.textMuted,
+    letterSpacing: 0.3,
   },
   card: {
-    backgroundColor: '#161922',
+    backgroundColor: colors.bgCard,
     padding: 24,
-    borderRadius: 16,
+    borderRadius: radii.xl,
     borderWidth: 1,
-    borderColor: '#232836',
+    borderColor: colors.glassBorder,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.4,
+    shadowRadius: 40,
+    elevation: 12,
   },
   field: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
   label: {
-    fontSize: 11,
-    color: '#8F95A0',
+    ...typography.label,
     marginBottom: 8,
-    fontWeight: '700',
-    letterSpacing: 1,
   },
   input: {
-    backgroundColor: '#0A0C10',
-    color: '#FFFFFF',
-    padding: 16,
-    borderRadius: 10,
+    backgroundColor: colors.bgInput,
+    color: colors.textMain,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: radii.sm,
     borderWidth: 1,
-    borderColor: '#232836',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     fontSize: 16,
   },
   primaryButton: {
-    backgroundColor: '#FF6B00',
-    padding: 18,
-    borderRadius: 10,
+    backgroundColor: colors.primary,
+    paddingVertical: 16,
+    borderRadius: radii.sm,
     alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#FF6B00',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    marginTop: 8,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 6,
   },
   primaryButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 1,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24
+    marginTop: 22,
+    flexWrap: 'wrap',
   },
-  footerText: { color: '#8F95A0' },
-  linkText: { color: '#FF6B00', fontWeight: 'bold' },
+  footerText: {
+    color: colors.textMuted,
+    fontSize: 15,
+  },
+  linkText: {
+    color: colors.primary,
+    fontWeight: '700',
+    fontSize: 15,
+  },
 });

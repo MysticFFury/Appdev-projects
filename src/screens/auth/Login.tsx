@@ -14,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { userLogin } from '../../app/action';
 import { NavigationProps } from '../../types/screen.auth.types';
+import ScreenBackground from '../../components/ScreenBackground';
+import { colors, radii, typography } from '../../theme';
 
 export default function Login({ navigation }: NavigationProps) {
   const [email, setEmail] = useState('');
@@ -26,98 +28,192 @@ export default function Login({ navigation }: NavigationProps) {
     if (email && password) {
       console.log('email', email);
       console.log('password', password);
-      // We pass the email string into the 'username' key because
-      // Symfony's json_login expects the identifier to be named 'username' by default.
       dispatch(userLogin({ username: email, password }));
     }
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <View style={styles.headerContainer}>
-          <View style={styles.accentLine} />
-          <Text style={styles.headerTitle}>Welcome Back</Text>
-        </View>
-
-        <View style={styles.card}>
-          {error && (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
-
-          <View style={styles.field}>
-            <Text style={styles.label}>EMAIL ADDRESS</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="user@geargrid.com"
-              placeholderTextColor="#555C6A"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-              editable={!isLoading}
-            />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <ScreenBackground>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}
+        >
+          <View style={styles.headerContainer}>
+            <View style={styles.accentBar} />
+            <Text style={styles.brandMark}>GearGrid</Text>
+            <Text style={styles.headerTitle}>Welcome Back</Text>
+            <Text style={styles.subHeader}>Sign in to continue</Text>
           </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>PASSWORD</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="••••••••"
-              placeholderTextColor="#555C6A"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              editable={!isLoading}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={handleLogin}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.primaryButtonText}>AUTHENTICATE</Text>
+          <View style={styles.card}>
+            {error && (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
             )}
-          </TouchableOpacity>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>New to the grid? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={isLoading}>
-              <Text style={styles.linkText}>Create Account</Text>
+            <View style={styles.field}>
+              <Text style={styles.label}>EMAIL ADDRESS</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="user@geargrid.com"
+                placeholderTextColor={colors.placeholder}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoComplete="email"
+                editable={!isLoading}
+              />
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>PASSWORD</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="••••••••"
+                placeholderTextColor={colors.placeholder}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                editable={!isLoading}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleLogin}
+              disabled={isLoading}
+              activeOpacity={0.9}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.primaryButtonText}>Sign in</Text>
+              )}
             </TouchableOpacity>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>New to GearGrid? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={isLoading}>
+                <Text style={styles.linkText}>Create account</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </ScreenBackground>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#0A0C10' },
-  container: { flex: 1, padding: 24, justifyContent: 'center' },
-  headerContainer: { marginBottom: 32 },
-  accentLine: { width: 40, height: 4, backgroundColor: '#FF6B00', marginBottom: 16, borderRadius: 2 },
-  headerTitle: { fontSize: 36, fontWeight: '900', color: '#FFFFFF', letterSpacing: 1, marginBottom: 8 },
-  subHeader: { fontSize: 14, color: '#8F95A0', letterSpacing: 2, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' },
-  card: { backgroundColor: '#161922', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#232836', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 8 },
-  field: { marginBottom: 20 },
-  label: { fontSize: 11, color: '#8F95A0', marginBottom: 8, fontWeight: '700', letterSpacing: 1 },
-  input: { backgroundColor: '#0A0C10', color: '#FFFFFF', padding: 16, borderRadius: 10, borderWidth: 1, borderColor: '#232836', fontSize: 16 },
-  primaryButton: { backgroundColor: '#FF6B00', padding: 18, borderRadius: 10, alignItems: 'center', marginTop: 10, shadowColor: '#FF6B00', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
-  primaryButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '800', letterSpacing: 1 },
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
-  footerText: { color: '#8F95A0' },
-  linkText: { color: '#FF6B00', fontWeight: 'bold' },
-  errorBox: { backgroundColor: 'rgba(255, 0, 0, 0.1)', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: 'red', marginBottom: 20 },
-  errorText: { color: '#FF6B00', fontSize: 13, textAlign: 'center', fontWeight: 'bold' }
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.bgBase,
+  },
+  container: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+  },
+  headerContainer: {
+    marginBottom: 28,
+  },
+  accentBar: {
+    width: 48,
+    height: 4,
+    backgroundColor: colors.primary,
+    marginBottom: 14,
+    borderRadius: 2,
+  },
+  brandMark: {
+    ...typography.brandTitle,
+    marginBottom: 8,
+  },
+  headerTitle: {
+    ...typography.screenTitle,
+    marginBottom: 6,
+  },
+  subHeader: {
+    fontSize: 14,
+    color: colors.textMuted,
+    letterSpacing: 0.3,
+  },
+  card: {
+    backgroundColor: colors.bgCard,
+    padding: 24,
+    borderRadius: radii.xl,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.4,
+    shadowRadius: 40,
+    elevation: 12,
+  },
+  field: {
+    marginBottom: 18,
+  },
+  label: {
+    ...typography.label,
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: colors.bgInput,
+    color: colors.textMain,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    fontSize: 16,
+  },
+  primaryButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 16,
+    borderRadius: radii.sm,
+    alignItems: 'center',
+    marginTop: 8,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 6,
+  },
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 22,
+    flexWrap: 'wrap',
+  },
+  footerText: {
+    color: colors.textMuted,
+    fontSize: 15,
+  },
+  linkText: {
+    color: colors.primary,
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  errorBox: {
+    backgroundColor: colors.dangerMutedBg,
+    padding: 12,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: colors.dangerMutedBorder,
+    marginBottom: 18,
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: 13,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
 });

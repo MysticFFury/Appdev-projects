@@ -7,13 +7,14 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import { colors, radii } from '../theme';
 
 interface CustomButtonProps {
   children: React.ReactNode;
   onPress?: () => void;
-  disabled?: boolean; 
+  disabled?: boolean;
   loading?: boolean;
-  variant?: 'primary' | 'outline';
+  variant?: 'primary' | 'outline' | 'danger';
   style?: ViewStyle;
   textStyle?: TextStyle;
   [key: string]: any;
@@ -29,33 +30,25 @@ export default function CustomButton({
   textStyle,
   ...rest
 }: CustomButtonProps) {
-  const isPrimary = variant === 'primary';
+  const variantStyles =
+    variant === 'primary'
+      ? { btn: styles.primary, text: styles.textPrimary, spinner: '#FFFFFF' }
+      : variant === 'danger'
+        ? { btn: styles.danger, text: styles.textDanger, spinner: colors.danger }
+        : { btn: styles.outline, text: styles.textOutline, spinner: colors.primary };
 
   return (
     <TouchableOpacity
-      style={[
-        styles.base,
-        isPrimary ? styles.primary : styles.outline,
-        (disabled || loading) && styles.disabled,
-        style,
-      ]}
+      style={[styles.base, variantStyles.btn, (disabled || loading) && styles.disabled, style]}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.85}
+      activeOpacity={0.9}
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? '#FFFFFF' : '#FF6B00'} />
+        <ActivityIndicator color={variantStyles.spinner} />
       ) : (
-        <Text
-          style={[
-            styles.text,
-            isPrimary ? styles.textPrimary : styles.textOutline,
-            textStyle,
-          ]}
-        >
-          {children}
-        </Text>
+        <Text style={[styles.text, variantStyles.text, textStyle]}>{children}</Text>
       )}
     </TouchableOpacity>
   );
@@ -63,38 +56,46 @@ export default function CustomButton({
 
 const styles = StyleSheet.create({
   base: {
-    paddingVertical: 18,
+    paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 10,
+    borderRadius: radii.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 54,
+    minHeight: 52,
   },
   primary: {
-    backgroundColor: '#FF6B00',
-    shadowColor: '#FF6B00',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 5,
   },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#FF6B00',
+    borderColor: colors.glassBorder,
+  },
+  danger: {
+    backgroundColor: colors.dangerMutedBg,
+    borderWidth: 1,
+    borderColor: colors.dangerMutedBorder,
   },
   disabled: {
     opacity: 0.55,
   },
   text: {
     fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 1,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   textPrimary: {
     color: '#FFFFFF',
   },
   textOutline: {
-    color: '#FF6B00',
+    color: colors.textMain,
+  },
+  textDanger: {
+    color: colors.danger,
   },
 });

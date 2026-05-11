@@ -1,33 +1,34 @@
 import React from 'react';
-import { Text, StyleSheet, TextStyle, ViewStyle } from 'react-native';
+import { Text, StyleSheet, TextStyle } from 'react-native';
+import { colors } from '../theme';
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 36,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 1,
+    fontSize: 32,
+    fontWeight: '800',
+    color: colors.textMain,
+    letterSpacing: 0.5,
   },
   label: {
     fontSize: 11,
-    color: '#8F95A0', 
+    color: colors.textMuted,
     fontWeight: '700',
     letterSpacing: 1,
   },
   body: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: colors.textMain,
   },
   error: {
     fontSize: 13,
-    color: '#FF6B00',
+    color: colors.danger,
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   link: {
     fontSize: 16,
-    color: '#FF6B00',
-    fontWeight: 'bold',
+    color: colors.primary,
+    fontWeight: '700',
   },
 });
 

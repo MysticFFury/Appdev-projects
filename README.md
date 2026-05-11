@@ -14,6 +14,11 @@ To start the Metro dev server, run the following command from the root of your R
 # Using npm
 npm start
 
+# netstat -ano | findstr :8081
+# taskkill /PID 12345 /F
+
+
+
 # OR using Yarn
 yarn start
 ```

@@ -1,29 +1,23 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { colors, radii } from '../theme';
 
 export default function ListedCom() {
-
   const [isRevealed, setIsRevealed] = useState(false);
 
-    return (
-      <View style={styles.container}>
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.button} onPress={() => setIsRevealed(true)} activeOpacity={0.9}>
+        <Text style={styles.buttonText}>Listed</Text>
+      </TouchableOpacity>
 
-        {/* The Button */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setIsRevealed(true)}
-        >
-          <Text style={styles.buttonText}>Listed </Text>
-        </TouchableOpacity>
-
-        {isRevealed && (
-                <View style={styles.resultBox}>
-                  <Text style={styles.nameText}>listed name </Text>
-                </View>
-              )}
-
-      </View>
-    );
+      {isRevealed && (
+        <View style={styles.resultBox}>
+          <Text style={styles.nameText}>listed name </Text>
+        </View>
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -31,25 +25,30 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   button: {
-    backgroundColor: '#FF6B00',
+    backgroundColor: colors.primary,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: radii.sm,
     alignItems: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 4,
   },
   buttonText: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   resultBox: {
     marginTop: 16,
     padding: 16,
-    backgroundColor: '#161922',
-    borderRadius: 8,
+    backgroundColor: colors.bgCard,
+    borderRadius: radii.md,
     borderWidth: 1,
-    borderColor: '#232836',
+    borderColor: colors.glassBorder,
   },
   nameText: {
-    color: '#FFFFFF',
+    color: colors.textMain,
     fontSize: 16,
   },
 });
