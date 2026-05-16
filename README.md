@@ -14,6 +14,15 @@ To start the Metro dev server, run the following command from the root of your R
 # Using npm
 npm start
 
+# npm start -- --port 8088
+
+# npx react-native run-android --port 8088
+
+# Then in another terminal:
+
+# adb reverse tcp:8088 tcp:8088
+# npm run android
+
 # netstat -ano | findstr :8081
 # taskkill /PID 12345 /F
 

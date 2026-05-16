@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,6 +17,9 @@ import { userLogin } from '../../app/action';
 import { NavigationProps } from '../../types/screen.auth.types';
 import ScreenBackground from '../../components/ScreenBackground';
 import { colors, radii, typography } from '../../theme';
+import { ROUTES } from '../../utils';
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { signInWithGoogle } from '../../utils/firebase';
 
 export default function Login({ navigation }: NavigationProps) {
   const [email, setEmail] = useState('');
@@ -94,9 +98,31 @@ export default function Login({ navigation }: NavigationProps) {
               )}
             </TouchableOpacity>
 
+            <View style={styles.divider}>
+              <Text style={styles.dividerText}>or</Text>
+            </View>
+
+            <GoogleSigninButton
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Dark}
+              onPress={async () => {
+                const result = await signInWithGoogle();
+                if (result?.userInfo) {
+                  console.log(result);
+                  Alert.alert('Success', 'Google sign in successful');
+                } else if (result?.message) {
+                  Alert.alert('Error', result.message);
+                }
+              }}
+              disabled={isLoading}
+            />
+
             <View style={styles.footer}>
               <Text style={styles.footerText}>New to GearGrid? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={isLoading}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate(ROUTES.REGISTER)}
+                disabled={isLoading}
+              >
                 <Text style={styles.linkText}>Create account</Text>
               </TouchableOpacity>
             </View>
@@ -186,6 +212,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.3,
+  },
+  divider: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  dividerText: {
+    color: colors.textMuted,
+    fontSize: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   footer: {
     flexDirection: 'row',

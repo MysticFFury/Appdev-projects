@@ -5,23 +5,24 @@ import {
   View,
   TouchableOpacity,
   Alert,
-  DevSettings,
   StyleSheet,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { logout } from '../app/action';
 import { IMG } from '../utils';
 import ScreenBackground from '../components/ScreenBackground';
 import { colors, radii, typography } from '../theme';
 
 const ProfileScreen = () => {
+  const dispatch = useDispatch();
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userToken');
-
+      dispatch(logout());
       Alert.alert('Signed out', 'You have been securely signed out.');
-
-      DevSettings.reload();
     } catch (error) {
       console.log('Error clearing token:', error);
       Alert.alert('Error', 'There was a problem signing out.');
@@ -37,7 +38,7 @@ const ProfileScreen = () => {
 
           <View style={styles.card}>
             <View style={styles.avatarWrap}>
-              <Image source={{ uri: IMG.LOGO }} style={styles.avatar} />
+              <Image source={IMG.LOGO} style={styles.avatar} />
             </View>
             <Text style={styles.cardCaption}>Account</Text>
             <Text style={styles.muted}>Manage your profile on the web admin for full details.</Text>

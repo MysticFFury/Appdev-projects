@@ -1,0 +1,66 @@
+import { StyleSheet } from 'react-native';
+import { colors, radii, spacing } from '../../theme';
+
+export const customerStyles = StyleSheet.create({
+  pageHero: {
+    marginBottom: 22,
+    paddingVertical: 24,
+    paddingHorizontal: 18,
+    borderRadius: 22,
+    backgroundColor: 'rgba(108, 99, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.09)',
+  },
+  kicker: {
+    alignSelf: 'center',
+    color: '#c4b5fd',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    marginBottom: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: radii.pill,
+    backgroundColor: 'rgba(108, 99, 255, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(108, 99, 255, 0.28)',
+  },
+  pageTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.textMain,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  pageLead: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(15, 22, 38, 0.62)',
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    padding: 18,
+    marginBottom: 14,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.textMain,
+    marginBottom: 14,
+  },
+  primaryCta: {
+    backgroundColor: colors.primary,
+    borderRadius: radii.md,
+    paddingVertical: 14,
+    paddingHorizontal: 22,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
+  primaryCtaText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  scrollPad: { paddingHorizontal: spacing.screen, paddingBottom: 32 },
+});

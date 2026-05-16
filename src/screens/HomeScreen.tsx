@@ -5,9 +5,11 @@ import { useDispatch } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { logout } from '../app/action';
 import ScreenBackground from '../components/ScreenBackground';
+import { ROUTES } from '../utils';
+import { NavigationProps } from '../types/screen.auth.types';
 import { colors, radii, typography } from '../theme';
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }: NavigationProps) => {
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
@@ -29,6 +31,13 @@ const HomeScreen = () => {
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Quick actions</Text>
+            <TouchableOpacity
+              style={styles.secondaryBtn}
+              onPress={() => navigation.navigate(ROUTES.PROFILE)}
+              activeOpacity={0.9}
+            >
+              <Text style={styles.secondaryBtnText}>My profile</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.primaryBtn} onPress={handleLogout} activeOpacity={0.9}>
               <Text style={styles.primaryBtnText}>Sign out</Text>
             </TouchableOpacity>
@@ -84,6 +93,19 @@ const styles = StyleSheet.create({
     color: colors.textMain,
     letterSpacing: 0.3,
     marginBottom: 16,
+  },
+  secondaryBtn: {
+    paddingVertical: 14,
+    borderRadius: radii.sm,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    marginBottom: 12,
+  },
+  secondaryBtnText: {
+    color: colors.textMain,
+    fontSize: 16,
+    fontWeight: '600',
   },
   primaryBtn: {
     backgroundColor: colors.primary,

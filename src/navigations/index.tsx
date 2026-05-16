@@ -4,20 +4,17 @@ import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../app/action';
-
-// Import the two Navigators
 import AuthNav from './auth';
 import MainNav from './MainNav';
+import CustomerNav from './CustomerNav';
+import { isCustomerUser } from '../utils/authRoles';
 import { colors } from '../theme';
 
 export default function AppNav() {
   const [isHydrating, setIsHydrating] = useState(true);
   const dispatch = useDispatch();
-
-  // Live Redux auth state
   const user = useSelector((state: any) => state.auth.user);
 
-  // This checks the phone's storage as soon as the app opens
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
@@ -26,7 +23,6 @@ export default function AppNav() {
           try {
             dispatch(loginSuccess(JSON.parse(raw)));
           } catch {
-            // If storage is corrupted, clear it so we don't get stuck authenticated
             await AsyncStorage.removeItem('userToken');
           }
         }
@@ -36,13 +32,9 @@ export default function AppNav() {
         setIsHydrating(false);
       }
     };
-
     checkLoginStatus();
   }, [dispatch]);
 
-  const isAuthenticated = !!user;
-
-  // Show a loading spinner for a split second while checking storage
   if (isHydrating) {
     return (
       <View
@@ -58,10 +50,11 @@ export default function AppNav() {
     );
   }
 
-  // Gatekeeper
-  return (
-    <NavigationContainer>
-      {isAuthenticated ? <MainNav /> : <AuthNav />}
-    </NavigationContainer>
-  );
+  const renderMain = () => {
+    if (!user) return <AuthNav />;
+    if (isCustomerUser(user)) return <CustomerNav />;
+    return <MainNav />;
+  };
+
+  return <NavigationContainer>{renderMain()}</NavigationContainer>;
 }

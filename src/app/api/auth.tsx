@@ -115,7 +115,7 @@ export async function loginApi({ username, password, timeoutMs }: LoginCredentia
       'Content-Type': 'application/json',
       Accept: 'application/json',
     },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email: username, password }),
   });
 }
 
