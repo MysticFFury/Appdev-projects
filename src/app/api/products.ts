@@ -36,10 +36,21 @@ function unwrapCollection(data: unknown): Record<string, unknown>[] {
 }
 
 export async function fetchProducts(): Promise<Product[]> {
-  const data = await apiFetch('/api/products', {
-    headers: { Accept: 'application/json' },
-  });
-  return unwrapCollection(data).map(normalizeProduct);
+  let allProducts: Record<string, unknown>[] = [];
+  let nextUrl: string | undefined = '/api/products';
+
+  while (nextUrl) {
+    const data: unknown = await apiFetch(nextUrl, {
+      headers: { Accept: 'application/ld+json' },
+    });
+    
+    allProducts = [...allProducts, ...unwrapCollection(data)];
+    
+    const view = (data as any)['hydra:view'] || (data as any)['view'];
+    nextUrl = view && (view['hydra:next'] || view['next']) ? (view['hydra:next'] || view['next']) : undefined;
+  }
+
+  return allProducts.map(normalizeProduct);
 }
 
 export function getProductImageUrl(image: string | null | undefined): string {

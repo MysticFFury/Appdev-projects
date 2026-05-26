@@ -7,6 +7,7 @@ import { customerStyles } from '../../components/customer/customerStyles';
 import { NavigationProps } from '../../types/screen.auth.types';
 import { ROUTES } from '../../utils';
 import { loadCart, saveCart } from '../../utils/cart';
+import { checkoutCart } from '../../app/api/customer';
 import { CartLine } from '../../types/product.types';
 import { colors, radii } from '../../theme';
 
@@ -27,6 +28,27 @@ export default function CustomerCartScreen({ navigation }: NavigationProps) {
       .filter((l) => l.qty > 0);
     await saveCart(next);
     setLines(next);
+  };
+
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const handleCheckout = async () => {
+    if (lines.length === 0) return;
+    setIsCheckingOut(true);
+    try {
+      const payload = lines.map(l => ({ productId: l.productId, qty: l.qty }));
+      await checkoutCart(payload);
+      
+      // If apiFetch didn't throw, it was successful
+      await saveCart([]);
+      setLines([]);
+      Alert.alert('Success', 'Order placed successfully!');
+      navigation.navigate(ROUTES.PROFILE);
+    } catch (e: any) {
+      Alert.alert('Checkout Failed', e?.message || 'Unknown error occurred.');
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   return (
@@ -55,9 +77,21 @@ export default function CustomerCartScreen({ navigation }: NavigationProps) {
         {lines.length > 0 && (
           <>
             <Text style={styles.total}>Total: ₱{total.toFixed(2)}</Text>
+            
+            <TouchableOpacity
+              style={[styles.checkoutBtn, isCheckingOut && { opacity: 0.7 }]}
+              onPress={handleCheckout}
+              disabled={isCheckingOut}
+            >
+              <Text style={styles.checkoutBtnText}>
+                {isCheckingOut ? 'Processing...' : 'Buy It'}
+              </Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.shop}
               onPress={() => navigation.navigate(ROUTES.CUSTOMER_PRODUCTS)}
+              disabled={isCheckingOut}
             >
               <Text style={styles.shopText}>Continue shopping</Text>
             </TouchableOpacity>
@@ -76,12 +110,27 @@ const styles = StyleSheet.create({
   qtyBtn: { fontSize: 22, color: colors.primary, fontWeight: '700', paddingHorizontal: 12 },
   qty: { color: colors.textMain, fontWeight: '700' },
   total: { fontSize: 20, fontWeight: '800', color: colors.textMain, marginTop: 12 },
+  checkoutBtn: {
+    marginTop: 16,
+    backgroundColor: colors.success,
+    padding: 16,
+    borderRadius: radii.md,
+    alignItems: 'center',
+    shadowColor: colors.success,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  checkoutBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
   shop: {
     marginTop: 12,
-    backgroundColor: colors.primary,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.primary,
     padding: 14,
     borderRadius: radii.md,
     alignItems: 'center',
   },
-  shopText: { color: '#fff', fontWeight: '700' },
+  shopText: { color: colors.primary, fontWeight: '700' },
 });

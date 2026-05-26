@@ -16,7 +16,10 @@ npm start
 
 # npm start -- --port 8088
 
-# npx react-native run-android --port 8088
+# npx react-native run-android --port 8088 
+# adb reverse tcp:8000 tcp:8000
+# 
+
 
 # Then in another terminal:
 

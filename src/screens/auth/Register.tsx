@@ -8,21 +8,80 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
 
 import { NavigationProps } from '../../types/screen.auth.types';
 import ScreenBackground from '../../components/ScreenBackground';
+import GoogleSignInPressable from '../../components/auth/GoogleSignInPressable';
 import { colors, radii, typography } from '../../theme';
+import { ROUTES } from '../../utils';
+import { UserRegister, UserGoogleAuth } from '../../app/api/auth';
+import { loginSuccess } from '../../app/action';
+import { showSuccess, showError, showWarning } from '../../components/AlertMsg';
 
 export default function Register({ navigation }: NavigationProps) {
+  const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
-    console.log('Registering:', name);
-    navigation.navigate('Login');
+  const handleRegister = async () => {
+    if (!name || !email || !password) {
+      showWarning('Validation Error', 'Please fill in all fields.');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const result = await UserRegister({ name, email, password });
+      if (result.ok && result.data?.requiresVerification) {
+        Alert.alert(
+          'Check your email',
+          result.data?.message ||
+            'We sent a verification link. Open it in your email, then sign in.',
+          [{ text: 'OK', onPress: () => navigation.navigate(ROUTES.LOGIN) }],
+        );
+      } else if (result.ok && result.token) {
+        await AsyncStorage.setItem('userToken', result.token);
+        const userData = result.data?.user || { name, email, roles: ['ROLE_USER'] };
+        showSuccess('Registration Successful', `Welcome to GearGrid, ${name}!`);
+        dispatch(loginSuccess(userData));
+      } else {
+        showError('Registration Failed', result.error || 'Something went wrong.');
+      }
+    } catch (e: any) {
+      showError('Error', e?.message || 'A network error occurred.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (googleResult: { email: string; idToken: string }) => {
+    setLoading(true);
+    try {
+      // Pass the email and extract a base name from it.
+      const baseName = googleResult.email.split('@')[0];
+      const result = await UserGoogleAuth({ email: googleResult.email, name: baseName });
+      
+      if (result.ok && result.token) {
+        await AsyncStorage.setItem('userToken', result.token);
+        const userData = result.data?.user || { email: googleResult.email, name: baseName, roles: ['ROLE_USER'] };
+        showSuccess('Signed in with Google', `Welcome to GearGrid, ${userData.name || 'User'}!`);
+        dispatch(loginSuccess(userData));
+      } else {
+        showError('Google Sign-In Failed', result.error || 'Could not log in with Google.');
+      }
+    } catch (e: any) {
+      showError('Error', e?.message || 'A network error occurred during Google sign-in.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,6 +108,7 @@ export default function Register({ navigation }: NavigationProps) {
                   placeholderTextColor={colors.placeholder}
                   value={name}
                   onChangeText={setName}
+                  editable={!loading}
                 />
               </View>
 
@@ -62,6 +122,7 @@ export default function Register({ navigation }: NavigationProps) {
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  editable={!loading}
                 />
               </View>
 
@@ -74,16 +135,34 @@ export default function Register({ navigation }: NavigationProps) {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
+                  editable={!loading}
                 />
               </View>
 
-              <TouchableOpacity style={styles.primaryButton} onPress={handleRegister} activeOpacity={0.9}>
-                <Text style={styles.primaryButtonText}>Create account</Text>
+              <TouchableOpacity 
+                style={[styles.primaryButton, loading && { opacity: 0.7 }]} 
+                onPress={handleRegister} 
+                activeOpacity={0.9}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Create account</Text>
+                )}
               </TouchableOpacity>
+
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <GoogleSignInPressable disabled={loading} onSuccess={handleGoogleSuccess} />
 
               <View style={styles.footer}>
                 <Text style={styles.footerText}>Already have an account? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <TouchableOpacity onPress={() => navigation.navigate(ROUTES.LOGIN)} disabled={loading}>
                   <Text style={styles.linkText}>Sign in</Text>
                 </TouchableOpacity>
               </View>
@@ -175,6 +254,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.3,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 18,
+    gap: 12,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.glassBorder,
+  },
+  dividerText: {
+    color: colors.textMuted,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   footer: {
     flexDirection: 'row',

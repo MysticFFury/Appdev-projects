@@ -11,6 +11,7 @@ import {
 
 import { UserLogin } from '../api/auth';
 import { ApiResponse } from '../../types/api.auth.types';
+import { showSuccess } from '../../components/AlertMsg';
 
 export function* userLoginAsync(action: any): Generator {
   try {
@@ -20,14 +21,18 @@ export function* userLoginAsync(action: any): Generator {
 
     if (result?.ok === true) {
       const token = result.token || result.data?.token || null;
-      const payload = result.data || (token ? { token } : result);
+      const apiUser = result.data?.user ?? result.data;
+      const payload = {
+        token,
+        user: apiUser,
+        roles: apiUser?.roles ?? [],
+      };
 
       console.log('[SAGA] ✅ LOGIN SUCCESS');
-      console.log('[SAGA] 🔑 token:', token);
-      console.log('[SAGA] 📦 payload:', payload);
 
-      // Persist for AppNav hydration
       yield call([AsyncStorage, 'setItem'], 'userToken', JSON.stringify(payload));
+
+      showSuccess('Signed in successfully', `Welcome back, ${apiUser?.name || 'User'}!`);
 
       yield put({ type: USER_LOGIN_SUCCESS, payload });
       return;
@@ -46,6 +51,7 @@ export function* userLoginAsync(action: any): Generator {
 export function* userLogoutAsync(): Generator {
   try {
     yield call([AsyncStorage, 'removeItem'], 'userToken');
+    showSuccess('Signed out', 'You have been securely signed out.');
   } catch {}
 }
 

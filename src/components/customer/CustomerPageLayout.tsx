@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import ScreenBackground from '../ScreenBackground';
 import CustomerTopNav from './CustomerTopNav';
+import CustomerFooter from './CustomerFooter';
 import { colors } from '../../theme';
 
 type Props = {
@@ -28,6 +29,7 @@ export default function CustomerPageLayout({
           contentContainerStyle={[styles.content, contentContainerStyle]}
         >
           {children}
+          <CustomerFooter navigation={navigation} />
         </ScrollView>
       </ScreenBackground>
     </SafeAreaView>

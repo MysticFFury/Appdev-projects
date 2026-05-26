@@ -1,5 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
 import { LoginCredentials, ApiResponse, FetchOptions } from '../../types/api.auth.types';
+import { getStoredAuthToken } from './token';
 
 function getDevServerHost(): string | null {
   const scriptURL = NativeModules?.SourceCode?.scriptURL;
@@ -30,17 +31,8 @@ function isProbablyAndroidEmulator(): boolean {
 }
 
 export function getApiBaseUrl(): string {
-  // Prefer the same host serving Metro (works on real devices + LAN).
-  const host = getDevServerHost();
-  if (host) return `http://${host}:8000`;
-
-  // Fallbacks when scriptURL isn't available.
-  // Android emulator: 10.0.2.2 points to your PC's localhost.
-  // Real Android device over USB: use adb reverse so 127.0.0.1:8000 on the phone maps to your PC.
-  if (Platform.OS === 'android') {
-    return isProbablyAndroidEmulator() ? 'http://10.0.2.2:8000' : 'http://127.0.0.1:8000';
-  }
-  return 'http://127.0.0.1:8000'; // iOS simulator / desktop
+  return 'https://final-geargrid-production-production.up.railway.app';
+  // return 'http://10.0.2.2:8000'; // Local testing
 }
 
 export async function apiFetch<T = any>(path: string, options: FetchOptions = {}): Promise<T> {
@@ -55,8 +47,18 @@ export async function apiFetch<T = any>(path: string, options: FetchOptions = {}
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
+    const token = await getStoredAuthToken();
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      ...(options.headers as Record<string, string> | undefined),
+    };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     const res = await fetch(url, {
       ...options,
+      headers,
       signal: controller.signal,
     });
 
@@ -70,11 +72,12 @@ export async function apiFetch<T = any>(path: string, options: FetchOptions = {}
 
     if (!res.ok) {
       const message =
+        (data && typeof data === 'object' && data.error) ||
         (data && typeof data === 'object' && data.message) ||
         (data && typeof data === 'object' && data.detail) ||
         (typeof data === 'string' && data) ||
         `Request failed (${res.status})`;
-      throw new Error(message);
+      throw new Error(typeof message === 'string' ? message : `Request failed (${res.status})`);
     }
 
     return data as T;
@@ -123,6 +126,85 @@ export async function loginApi({ username, password, timeoutMs }: LoginCredentia
 export async function UserLogin(credentials: LoginCredentials): Promise<ApiResponse> {
   try {
     const data = await loginApi(credentials);
+    const token = data?.token ?? data?.access_token ?? data?.jwt ?? null;
+    const normalizedData =
+      token && data && typeof data === 'object' ? { ...data, token } : data;
+
+    return { ok: true, data: normalizedData, token };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || String(e) };
+  }
+}
+
+export async function registerApi({ email, password, name, timeoutMs }: import('../../types/api.auth.types').RegisterCredentials): Promise<any> {
+  if (!email || !password || !name) {
+    throw new Error('Email, password, and name are required.');
+  }
+
+  return apiFetch('/api/register', {
+    timeoutMs: timeoutMs ?? 35000,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({ email, password, name }),
+  });
+}
+
+export async function UserRegister(credentials: import('../../types/api.auth.types').RegisterCredentials): Promise<ApiResponse> {
+  try {
+    const data = await registerApi(credentials);
+
+    const token = data?.token ?? data?.access_token ?? data?.jwt ?? null;
+    const normalizedData =
+      token && data && typeof data === 'object' ? { ...data, token } : data;
+
+    return { ok: true, data: normalizedData, token };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || String(e) };
+  }
+}
+
+export async function resendVerificationApi(email: string): Promise<any> {
+  return apiFetch('/api/resend-verification', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function UserResendVerification(email: string): Promise<ApiResponse> {
+  try {
+    const data = await resendVerificationApi(email);
+    return { ok: true, data };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || String(e) };
+  }
+}
+
+export async function googleApi({ email, name, timeoutMs }: import('../../types/api.auth.types').GoogleLoginCredentials): Promise<any> {
+  if (!email) {
+    throw new Error('Email is required for Google login.');
+  }
+
+  return apiFetch('/api/google', {
+    timeoutMs: timeoutMs ?? 35000,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({ email, name }),
+  });
+}
+
+export async function UserGoogleAuth(credentials: import('../../types/api.auth.types').GoogleLoginCredentials): Promise<ApiResponse> {
+  try {
+    const data = await googleApi(credentials);
     const token = data?.token ?? data?.access_token ?? data?.jwt ?? null;
     const normalizedData =
       token && data && typeof data === 'object' ? { ...data, token } : data;

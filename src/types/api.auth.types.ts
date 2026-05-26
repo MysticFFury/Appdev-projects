@@ -4,6 +4,19 @@ export interface LoginCredentials {
   timeoutMs?: number;
 }
 
+export interface RegisterCredentials {
+  name: string;
+  email: string;
+  password?: string; // Optional for google
+  timeoutMs?: number;
+}
+
+export interface GoogleLoginCredentials {
+  email: string;
+  name: string;
+  timeoutMs?: number;
+}
+
 export interface LoginResponse {
   token?: string;
   access_token?: string;

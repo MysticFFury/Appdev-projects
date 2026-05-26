@@ -28,3 +28,22 @@ export async function submitContact(payload: ContactPayload): Promise<{ message?
     body: JSON.stringify(payload),
   });
 }
+
+export async function checkoutCart(items: { productId: number; qty: number }[]) {
+  return apiFetch('/api/customer/orders/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ items }),
+  });
+}
+
+export async function fetchCustomerOrders() {
+  const result = await apiFetch('/api/customer/orders', {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+  if (result && result.items) {
+    return result.items;
+  }
+  return [];
+}

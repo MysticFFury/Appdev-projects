@@ -12,6 +12,7 @@ export default function ScreenBackground({ children, style }: Props) {
     <View style={[styles.root, style]}>
       <View style={styles.glowPurple} pointerEvents="none" />
       <View style={styles.glowPink} pointerEvents="none" />
+      <View style={styles.glowBlue} pointerEvents="none" />
       <View style={styles.inner}>{children}</View>
     </View>
   );
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
     height: GLOW_SIZE,
     borderRadius: GLOW_SIZE / 2,
     backgroundColor: colors.primary,
-    opacity: 0.14,
+    opacity: 0.13,
     top: -80,
     left: -100,
   },
@@ -41,9 +42,19 @@ const styles = StyleSheet.create({
     height: GLOW_SIZE * 0.85,
     borderRadius: (GLOW_SIZE * 0.85) / 2,
     backgroundColor: colors.secondary,
-    opacity: 0.1,
+    opacity: 0.09,
     bottom: -40,
     right: -90,
+  },
+  glowBlue: {
+    position: 'absolute',
+    width: GLOW_SIZE * 0.7,
+    height: GLOW_SIZE * 0.7,
+    borderRadius: (GLOW_SIZE * 0.7) / 2,
+    backgroundColor: '#0ea5e9',
+    opacity: 0.1,
+    top: '40%',
+    left: '30%',
   },
   inner: {
     flex: 1,

@@ -1,7 +1,7 @@
 function getRoles(user: { roles?: string[]; user?: { roles?: string[] } } | null | undefined): string[] {
   if (!user) return [];
+  if (Array.isArray(user.roles) && user.roles.length > 0) return user.roles;
   if (Array.isArray(user.user?.roles)) return user.user.roles;
-  if (Array.isArray(user.roles)) return user.roles;
   return [];
 }
 
@@ -15,4 +15,8 @@ export function isCustomerUser(user: { roles?: string[]; user?: { roles?: string
 export function isStaffOrAdmin(user: { roles?: string[]; user?: { roles?: string[] } } | null): boolean {
   const roles = getRoles(user);
   return roles.includes('ROLE_ADMIN') || roles.includes('ROLE_STAFF');
+}
+
+export function isAdminUser(user: { roles?: string[]; user?: { roles?: string[] } } | null): boolean {
+  return getRoles(user).includes('ROLE_ADMIN');
 }

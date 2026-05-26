@@ -20,6 +20,7 @@ import { fetchProducts, formatPeso, getCategoryName, getProductImageUrl } from '
 import { addToCart, getCartCount } from '../../utils/cart';
 import { Product } from '../../types/product.types';
 import { colors, radii } from '../../theme';
+import { showSuccess, showError, showWarning } from '../../components/AlertMsg';
 
 export default function CustomerProductsScreen({ navigation }: NavigationProps) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,17 +34,18 @@ export default function CustomerProductsScreen({ navigation }: NavigationProps) 
     try {
       setProducts(await fetchProducts());
     } catch (e: any) {
-      Alert.alert('Could not load products', e?.message || 'Is Symfony running on port 8000?');
+      showError('Could not load products', e?.message || 'Is Symfony running on port 8000?');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
+    // Kept to preserve hook count for Fast Refresh
   }, []);
 
   useFocusEffect(useCallback(() => {
+    load();
     getCartCount().then(setCartCount);
   }, []));
 
@@ -67,12 +69,12 @@ export default function CustomerProductsScreen({ navigation }: NavigationProps) 
 
   const onAdd = async (product: Product) => {
     if (product.quantity <= 0) {
-      Alert.alert('Out of stock');
+      showWarning('Out of stock', 'This item is currently sold out.');
       return;
     }
     await addToCart(product.id, product.name, product.price);
     setCartCount(await getCartCount());
-    Alert.alert('Added to cart', `${product.name} · ${formatPeso(product.price)}`);
+    showSuccess('Added to cart', `${product.name} · ${formatPeso(product.price)}`);
   };
 
   return (
@@ -126,19 +128,36 @@ export default function CustomerProductsScreen({ navigation }: NavigationProps) 
             {filtered.map((item) => (
               <View key={item.id} style={styles.card}>
                 <Image source={{ uri: getProductImageUrl(item.image) }} style={styles.img} />
-                <Text style={styles.cat}>{getCategoryName(item)}</Text>
-                <Text style={styles.name}>{item.name}</Text>
-                <Text style={styles.price}>{formatPeso(item.price)}</Text>
-                <TouchableOpacity
-                  style={[styles.addBtn, item.quantity <= 0 && { opacity: 0.5 }]}
-                  onPress={() => onAdd(item)}
-                  disabled={item.quantity <= 0}
-                >
-                  <Text style={styles.addText}>Add to cart</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
+                 <Text style={styles.cat}>{getCategoryName(item)}</Text>
+                 <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
+                 
+                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 6 }}>
+                   <Text style={styles.price}>{formatPeso(item.price)}</Text>
+                   {item.quantity <= 0 ? (
+                     <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                       <Text style={{ fontSize: 10, color: '#f87171', fontWeight: '700' }}>Sold Out</Text>
+                     </View>
+                   ) : item.quantity <= 5 ? (
+                     <View style={{ backgroundColor: 'rgba(249, 115, 22, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                       <Text style={{ fontSize: 10, color: '#fb923c', fontWeight: '700' }}>Only {item.quantity} left</Text>
+                     </View>
+                   ) : (
+                     <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                       <Text style={{ fontSize: 10, color: '#34d399', fontWeight: '700' }}>In Stock</Text>
+                     </View>
+                   )}
+                 </View>
+
+                 <TouchableOpacity
+                   style={[styles.addBtn, item.quantity <= 0 && { opacity: 0.4 }]}
+                   onPress={() => onAdd(item)}
+                   disabled={item.quantity <= 0}
+                 >
+                   <Text style={styles.addText}>{item.quantity <= 0 ? 'Out of Stock' : 'Add to cart'}</Text>
+                 </TouchableOpacity>
+               </View>
+             ))}
+           </View>
         )}
         {!loading && filtered.length === 0 && (
           <Text style={styles.empty}>No products match your filters.</Text>

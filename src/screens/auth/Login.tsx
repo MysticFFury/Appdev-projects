@@ -8,31 +8,70 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  ScrollView,
   Alert,
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { userLogin } from '../../app/action';
+import { userLogin, loginSuccess } from '../../app/action';
 import { NavigationProps } from '../../types/screen.auth.types';
 import ScreenBackground from '../../components/ScreenBackground';
+import GoogleSignInPressable from '../../components/auth/GoogleSignInPressable';
 import { colors, radii, typography } from '../../theme';
 import { ROUTES } from '../../utils';
-import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
-import { signInWithGoogle } from '../../utils/firebase';
+import { UserGoogleAuth, UserResendVerification } from '../../app/api/auth';
+import { showSuccess, showError, showWarning } from '../../components/AlertMsg';
 
 export default function Login({ navigation }: NavigationProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state: any) => state.auth);
 
+  const isFormLoading = isLoading || googleLoading;
+
   const handleLogin = () => {
     if (email && password) {
-      console.log('email', email);
-      console.log('password', password);
       dispatch(userLogin({ username: email, password }));
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email.trim()) {
+      showWarning('Email required', 'Enter your email address first.');
+      return;
+    }
+    const result = await UserResendVerification(email.trim());
+    if (result.ok) {
+      showSuccess('Email sent', result.data?.message || 'Check your inbox for the verification link.');
+    } else {
+      showError('Could not resend', result.error || 'Please try again later.');
+    }
+  };
+
+  const handleGoogleSuccess = async (googleResult: { email: string; idToken: string }) => {
+    setGoogleLoading(true);
+    try {
+      // Pass the email and extract a base name from it.
+      const baseName = googleResult.email.split('@')[0];
+      const result = await UserGoogleAuth({ email: googleResult.email, name: baseName });
+      
+      if (result.ok && result.token) {
+        await AsyncStorage.setItem('userToken', result.token);
+        const userData = result.data?.user || { email: googleResult.email, name: baseName, roles: ['ROLE_USER'] };
+        showSuccess('Signed in with Google', `Welcome back, ${userData.name || 'User'}!`);
+        dispatch(loginSuccess(userData));
+      } else {
+        showError('Google Sign-In Failed', result.error || 'Could not log in with Google.');
+      }
+    } catch (e: any) {
+      showError('Error', e?.message || 'A network error occurred during Google sign-in.');
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -41,8 +80,13 @@ export default function Login({ navigation }: NavigationProps) {
       <ScreenBackground>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.container}
+          style={styles.keyboardView}
         >
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
           <View style={styles.headerContainer}>
             <View style={styles.accentBar} />
             <Text style={styles.brandMark}>GearGrid</Text>
@@ -68,7 +112,7 @@ export default function Login({ navigation }: NavigationProps) {
                 autoCapitalize="none"
                 keyboardType="email-address"
                 autoComplete="email"
-                editable={!isLoading}
+                editable={!isFormLoading}
               />
             </View>
 
@@ -81,14 +125,14 @@ export default function Login({ navigation }: NavigationProps) {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                editable={!isLoading}
+                editable={!isFormLoading}
               />
             </View>
 
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={handleLogin}
-              disabled={isLoading}
+              disabled={isFormLoading}
               activeOpacity={0.9}
             >
               {isLoading ? (
@@ -98,35 +142,33 @@ export default function Login({ navigation }: NavigationProps) {
               )}
             </TouchableOpacity>
 
-            <View style={styles.divider}>
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
             </View>
 
-            <GoogleSigninButton
-              size={GoogleSigninButton.Size.Wide}
-              color={GoogleSigninButton.Color.Dark}
-              onPress={async () => {
-                const result = await signInWithGoogle();
-                if (result?.userInfo) {
-                  console.log(result);
-                  Alert.alert('Success', 'Google sign in successful');
-                } else if (result?.message) {
-                  Alert.alert('Error', result.message);
-                }
-              }}
-              disabled={isLoading}
-            />
+            <GoogleSignInPressable disabled={isFormLoading} onSuccess={handleGoogleSuccess} />
+
+            <TouchableOpacity
+              onPress={handleResendVerification}
+              disabled={isFormLoading}
+              style={styles.resendLink}
+            >
+              <Text style={styles.linkText}>Resend verification email</Text>
+            </TouchableOpacity>
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>New to GearGrid? </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate(ROUTES.REGISTER)}
-                disabled={isLoading}
+                disabled={isFormLoading}
               >
                 <Text style={styles.linkText}>Create account</Text>
               </TouchableOpacity>
             </View>
           </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </ScreenBackground>
     </SafeAreaView>
@@ -138,10 +180,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bgBase,
   },
-  container: {
+  keyboardView: {
     flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
     padding: 24,
     justifyContent: 'center',
+    paddingVertical: 32,
   },
   headerContainer: {
     marginBottom: 28,
@@ -213,15 +259,26 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.3,
   },
-  divider: {
+  dividerRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: 18,
+    gap: 12,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.glassBorder,
   },
   dividerText: {
     color: colors.textMuted,
-    fontSize: 14,
+    fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  resendLink: {
+    alignItems: 'center',
+    marginTop: 16,
   },
   footer: {
     flexDirection: 'row',
