@@ -6,16 +6,19 @@ import Toast from 'react-native-toast-message';
 import AppNav from './src/navigations';
 import toastConfig from './src/components/AlertMsg/config';
 import store from './src/app/store';
+import WebSocketProvider from './src/components/WebSocketProvider';
 
 function App() {
   return (
     <Provider store={store}>
-      <GestureHandlerRootView style={styles.container}>
-        <SafeAreaProvider style={styles.container}>
-          <AppNav />
-          <Toast config={toastConfig} />
-        </SafeAreaProvider>
-      </GestureHandlerRootView>
+      <WebSocketProvider>
+        <GestureHandlerRootView style={styles.container}>
+          <SafeAreaProvider style={styles.container}>
+            <AppNav />
+            <Toast config={toastConfig} />
+          </SafeAreaProvider>
+        </GestureHandlerRootView>
+      </WebSocketProvider>
     </Provider>
   );
 }

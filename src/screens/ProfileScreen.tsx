@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Text,
   View,
@@ -18,6 +18,7 @@ import ScreenBackground from '../components/ScreenBackground';
 import { radii } from '../theme';
 import { fetchCustomerOrders } from '../app/api/customer';
 import { showSuccess, showError } from '../components/AlertMsg';
+import { appEvents } from '../utils/eventEmitter';
 
 const ProfileScreen = () => {
   const dispatch = useDispatch();
@@ -30,17 +31,35 @@ const ProfileScreen = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
 
+  const loadOrders = useCallback((silent = false) => {
+    if (staffMode) return;
+    if (!silent) setLoadingOrders(true);
+    fetchCustomerOrders().then(data => {
+      setOrders(data);
+      if (!silent) setLoadingOrders(false);
+    }).catch(err => {
+      console.log('Error loading orders:', err);
+      if (!silent) setLoadingOrders(false);
+    });
+  }, [staffMode]);
+
   useFocusEffect(
     useCallback(() => {
-      if (!staffMode) {
-        setLoadingOrders(true);
-        fetchCustomerOrders().then(data => {
-          setOrders(data);
-          setLoadingOrders(false);
-        });
-      }
-    }, [staffMode])
+      loadOrders();
+    }, [loadOrders])
   );
+
+  useEffect(() => {
+    if (staffMode) return;
+    const unsubscribe = appEvents.on('order-status-updated', (data) => {
+      const currentUserId = u?.id || u?.userId;
+      // Only reload if the updated order belongs to this customer
+      if (currentUserId && String(currentUserId) === String(data.customerId)) {
+        loadOrders(true); // reload silently
+      }
+    });
+    return () => unsubscribe();
+  }, [loadOrders, staffMode, u?.id, u?.userId]);
 
   const handleLogout = async () => {
     try {

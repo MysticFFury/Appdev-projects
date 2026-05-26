@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
@@ -9,6 +9,7 @@ import { AdminDashboard } from '../../types/admin.types';
 import { colors } from '../../theme';
 import { ROUTES } from '../../utils';
 import { NavigationProps } from '../../types/screen.auth.types';
+import { appEvents } from '../../utils/eventEmitter';
 
 export default function AdminDashboardScreen({ navigation }: NavigationProps) {
   const [data, setData] = useState<AdminDashboard | null>(null);
@@ -19,15 +20,15 @@ export default function AdminDashboardScreen({ navigation }: NavigationProps) {
   const userName = user?.name || user?.user?.name || 'User';
   const userInitials = userName.substring(0, 2).toUpperCase();
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       setData(await fetchAdminDashboard());
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to load dashboard');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
@@ -36,6 +37,13 @@ export default function AdminDashboardScreen({ navigation }: NavigationProps) {
       load();
     }, [load]),
   );
+
+  useEffect(() => {
+    const unsubscribe = appEvents.on('new-order', () => {
+      load(true); // reload silently
+    });
+    return () => unsubscribe();
+  }, [load]);
 
   return (
     <AdminShell
