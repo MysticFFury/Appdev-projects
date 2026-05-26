@@ -27,7 +27,7 @@ const LOCAL_WS_PORT = '8085';
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [connected, setConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Read auth state from Redux
   const auth = useSelector((state: any) => state.auth.user);
