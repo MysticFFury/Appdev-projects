@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, Platform, PermissionsAndroid } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
@@ -9,6 +10,21 @@ import store from './src/app/store';
 import WebSocketProvider from './src/components/WebSocketProvider';
 
 function App() {
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        try {
+          await PermissionsAndroid.request(
+            'android.permission.POST_NOTIFICATIONS' as any
+          );
+        } catch (err) {
+          console.warn(err);
+        }
+      }
+    };
+    requestNotificationPermission();
+  }, []);
+
   return (
     <Provider store={store}>
       <WebSocketProvider>

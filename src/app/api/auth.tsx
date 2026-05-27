@@ -31,13 +31,7 @@ function isProbablyAndroidEmulator(): boolean {
 }
 
 export function getApiBaseUrl(): string {
-  if (__DEV__) {
-    const devHost = getDevServerHost();
-    if (devHost) {
-      return `http://${devHost}:8000`;
-    }
-    return 'http://10.0.2.2:8000'; // Fallback for emulator
-  }
+  // Always use the deployed Railway backend for both dev and prod
   return 'https://final-geargrid-production-production.up.railway.app';
 }
 
