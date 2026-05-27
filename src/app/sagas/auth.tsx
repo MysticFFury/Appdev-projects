@@ -1,5 +1,5 @@
 import { takeLatest, call, put } from 'redux-saga/effects';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../../utils/storage';
 
 import {
   USER_LOGIN,

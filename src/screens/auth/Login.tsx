@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../../utils/storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { userLogin, loginSuccess } from '../../app/action';
 import { NavigationProps } from '../../types/screen.auth.types';

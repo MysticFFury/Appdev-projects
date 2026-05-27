@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from './storage';
 import { CartLine } from '../types/product.types';
 import { formatPeso } from '../app/api/products';
 

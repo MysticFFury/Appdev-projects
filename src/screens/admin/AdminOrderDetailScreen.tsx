@@ -1,6 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Text, TouchableOpacity, ActivityIndicator, Alert, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { appEvents } from '../../utils/eventEmitter';
 import AdminShell from '../../components/admin/AdminShell';
 import { adminStyles } from '../../components/admin/adminStyles';
 import {
@@ -38,6 +39,15 @@ export default function AdminOrderDetailScreen({
   }, [orderId]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  useEffect(() => {
+    const unsubscribe = appEvents.on('order-status-updated', (data) => {
+      if (Number(data.orderId) === Number(orderId)) {
+        load();
+      }
+    });
+    return () => unsubscribe();
+  }, [load, orderId]);
 
   const setStatus = async (status: string) => {
     try {

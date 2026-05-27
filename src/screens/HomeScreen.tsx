@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../utils/storage';
 import { useDispatch } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { logout } from '../app/action';

@@ -8,7 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../utils/storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { isStaffOrAdmin } from '../utils/authRoles';
@@ -22,7 +22,7 @@ import { appEvents } from '../utils/eventEmitter';
 
 const ProfileScreen = () => {
   const dispatch = useDispatch();
-  const auth = useSelector((state: { auth: { user: { user?: { name?: string; email?: string; roles?: string[] }; name?: string; email?: string; roles?: string[] } } }) => state.auth.user);
+  const auth = useSelector((state: any) => state.auth.user);
   const u = auth?.user ?? auth;
   const staffMode = isStaffOrAdmin(auth);
   

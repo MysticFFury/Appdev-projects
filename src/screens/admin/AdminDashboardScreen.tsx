@@ -39,10 +39,16 @@ export default function AdminDashboardScreen({ navigation }: NavigationProps) {
   );
 
   useEffect(() => {
-    const unsubscribe = appEvents.on('new-order', () => {
+    const unsubscribeNew = appEvents.on('new-order', () => {
       load(true); // reload silently
     });
-    return () => unsubscribe();
+    const unsubscribeUpdate = appEvents.on('order-status-updated', () => {
+      load(true); // reload silently
+    });
+    return () => {
+      unsubscribeNew();
+      unsubscribeUpdate();
+    };
   }, [load]);
 
   return (

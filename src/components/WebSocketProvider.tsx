@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { Alert } from 'react-native';
 import { isStaffOrAdmin } from '../utils/authRoles';
 import { appEvents } from '../utils/eventEmitter';
 import { showSuccess, showInfo } from './AlertMsg';
@@ -95,6 +96,29 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             // Notify customer if it's their order
             if (!staffMode && currentUserId && String(currentUserId) === String(targetCustomerId)) {
               showInfo(`Order Status Update`, data.message || `Order #${data.orderId} status is now: ${data.status}`);
+              
+              const statusStr = String(data.status || '').toLowerCase();
+              let title = 'Order Update 🔔';
+              let msg = `Your order #${data.orderId} status is now: ${data.status}`;
+              
+              if (statusStr === 'processing') {
+                title = 'Order Processing ⚙️';
+                msg = `Your order #${data.orderId} is now being processed.`;
+              } else if (statusStr === 'shipped') {
+                title = 'Order Shipped 🚚';
+                msg = `Your order #${data.orderId} has been shipped and is on the way!`;
+              } else if (statusStr === 'delivered') {
+                title = 'Order Delivered 🎉';
+                msg = `Your order #${data.orderId} has been successfully delivered!`;
+              } else if (statusStr === 'completed') {
+                title = 'Order Completed ✅';
+                msg = `Your order #${data.orderId} is now complete. Thank you!`;
+              } else if (statusStr === 'cancelled') {
+                title = 'Order Cancelled ❌';
+                msg = `Your order #${data.orderId} has been cancelled.`;
+              }
+              
+              Alert.alert(title, msg, [{ text: 'OK' }]);
             }
           }
         } catch (err) {

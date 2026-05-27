@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../../utils/storage';
 import { useDispatch } from 'react-redux';
 
 import { NavigationProps } from '../../types/screen.auth.types';

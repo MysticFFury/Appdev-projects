@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../../utils/storage';
 import ScreenBackground from '../ScreenBackground';
 import { logout } from '../../app/action';
 import { colors, radii } from '../../theme';

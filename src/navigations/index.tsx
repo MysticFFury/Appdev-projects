@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../utils/storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../app/action';
 import AuthNav from './auth';
