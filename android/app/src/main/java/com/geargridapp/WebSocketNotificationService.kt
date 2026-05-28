@@ -55,7 +55,7 @@ class WebSocketNotificationService : Service() {
 
     private fun connectWebSocket() {
         val request = Request.Builder()
-            .url("wss://geargrid-websocket-server-production.up.railway.app")
+            .url("wss://remarkable-rebirth-production.up.railway.app")
             .build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
@@ -66,6 +66,11 @@ class WebSocketNotificationService : Service() {
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
+                if (text == "ping") {
+                    webSocket.send("pong")
+                    return
+                }
+                
                 try {
                     val payload = JSONObject(text)
                     val event = payload.optString("event")

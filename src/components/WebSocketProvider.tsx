@@ -21,8 +21,8 @@ export const useWebSocket = () => {
 
 // --- CONFIGURATION ---
 // Change this to your deployed Railway WebSocket URL (e.g., wss://your-ws-app.up.railway.app)
-const RAILWAY_WS_URL = 'wss://geargrid-websocket-server-production.up.railway.app';
-const LOCAL_WS_PORT = '8085';
+const RAILWAY_WS_URL = 'wss://remarkable-rebirth-production.up.railway.app';
+const LOCAL_WS_PORT = '8080';
 // ---------------------
 
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -46,21 +46,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     const connect = () => {
-      // Determine the correct WebSocket URL based on API base URL
-      const apiBase = getApiBaseUrl();
+      // Always connect to the live Railway WebSocket server for final submission/testing
       let wsUrl = RAILWAY_WS_URL;
-
-      if (apiBase.includes('localhost') || apiBase.includes('127.0.0.1')) {
-        wsUrl = `ws://127.0.0.1:${LOCAL_WS_PORT}`;
-      } else if (apiBase.includes('10.0.2.2')) {
-        wsUrl = `ws://10.0.2.2:${LOCAL_WS_PORT}`;
-      } else {
-        // Handle custom LAN IPs (e.g. Wi-Fi testing)
-        const match = apiBase.match(/https?:\/\/([^/:]+)/);
-        if (match && match[1] && !apiBase.includes('railway.app')) {
-          wsUrl = `ws://${match[1]}:${LOCAL_WS_PORT}`;
-        }
-      }
 
       console.log(`[WebSocket] Connecting to ${wsUrl}`);
       
@@ -73,6 +60,11 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
 
       ws.onmessage = (event) => {
+        if (event.data === 'ping') {
+          ws.send('pong');
+          return;
+        }
+
         try {
           const payload = JSON.parse(event.data);
           const { event: eventName, data } = payload;
